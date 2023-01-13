@@ -8,6 +8,12 @@ const findAllProducts = async ():Promise<IProducts[]> => {
   return products;
 };
 
+const insertProduct = async (product:IProducts): Promise<IProducts> => {
+  const newProducts = await productModel.insertProduct(product);
+  return newProducts;
+};
+
 export default {
   findAllProducts,
+  insertProduct,
 };
