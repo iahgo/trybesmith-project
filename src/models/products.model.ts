@@ -1,8 +1,9 @@
-import { Pool, ResultSetHeader } from 'mysql2/promise';
+import { Pool, ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 import connection from './connection';
 
 import { IProducts } from '../interfaces/productsInterface';
 import { IUser } from '../interfaces/usersInterface';
+import { IOrder } from '../interfaces/ordersInterface';
 
 export default class ProductsModel {
   private connection: Pool;
@@ -33,5 +34,16 @@ export default class ProductsModel {
       [username, vocation, level, password],
     );
     return { id: insertId, username, vocation, level };
+  }
+
+  public async findAllOrders(): Promise<IOrder[]> {
+    const [result] = await this.connection.execute<RowDataPacket[] & IOrder[]>(
+      `SELECT o.id as id, o.user_id as userId, JSON_ARRAYAGG(p.id) as productsIds
+        FROM Trybesmith.orders as o
+        INNER JOIN Trybesmith.products as p
+        ON p.order_id = o.id
+        GROUP BY o.id`,
+    );
+    return result as IOrder[];
   }
 }
